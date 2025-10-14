@@ -92,8 +92,7 @@
           <Scope>openid</Scope>
           <Scope>User.Read</Scope>
           <Scope>profile</Scope>
-          <Scope>Mail.Read</Scope>
-          <Scope>Mail.Send</Scope>
+          <Scope>Mail.ReadWrite</Scope>
         </Scopes>
       </WebApplicationInfo>
     </VersionOverrides>
