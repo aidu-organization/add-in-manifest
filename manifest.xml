@@ -8,7 +8,7 @@
   <Description DefaultValue="Turn your inbox into a sales weapon with AIDU"/>
   <IconUrl DefaultValue="https://aidu.ai/outlook-add-in/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://aidu.ai/outlook-add-in/assets/icon-128.png"/>
-  <SupportUrl DefaultValue="https://aidu.ai/help"/>
+  <SupportUrl DefaultValue="https://aidu.ai/contact"/>
   <AppDomains>
     <AppDomain>https://aidu.ai</AppDomain>
   </AppDomains>
@@ -76,21 +76,24 @@
           <bt:Url id="Taskpane.Url" DefaultValue="https://aidu.ai/outlook-add-in/taskpane.html"/>
         </bt:Urls>
         <bt:ShortStrings>
-          <bt:String id="GetStarted.Title" DefaultValue="Get started with your sample add-in!"/>
-          <bt:String id="CommandsGroup.Label" DefaultValue="Commands Group"/>
-          <bt:String id="TaskpaneButton.Label" DefaultValue="Show Task Pane"/>
+          <bt:String id="GetStarted.Title" DefaultValue="Welcome to AIDU"/>
+          <bt:String id="CommandsGroup.Label" DefaultValue="AIDU Tools"/>
+          <bt:String id="TaskpaneButton.Label" DefaultValue="Open AIDU"/>
         </bt:ShortStrings>
         <bt:LongStrings>
-          <bt:String id="GetStarted.Description" DefaultValue="Your sample add-in loaded succesfully. Go to the HOME tab and click the 'Show Task Pane' button to get started."/>
-          <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to Show a Task Pane"/>
+          <bt:String id="GetStarted.Description" DefaultValue="Turn your inbox into a sales weapon with AIDU"/>
+          <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open AIDU to enhance your email with AI"/>
         </bt:LongStrings>
       </Resources>
       <WebApplicationInfo>
-        <Id>33361845-c5f2-4857-a322-bc79bc9ba679</Id>
-        <Resource>api://aidu.ai/outlook-add-in/33361845-c5f2-4857-a322-bc79bc9ba679</Resource>
+        <Id>33b17c75-d913-41da-8560-cc3014322e50</Id>
+        <Resource>api://aidu.ai/outlook-add-in/33b17c75-d913-41da-8560-cc3014322e50</Resource>
         <Scopes>
+          <Scope>openid</Scope>
           <Scope>User.Read</Scope>
           <Scope>profile</Scope>
+          <Scope>Mail.Read</Scope>
+          <Scope>Mail.Send</Scope>
         </Scopes>
       </WebApplicationInfo>
     </VersionOverrides>
