@@ -37,16 +37,20 @@
     <div id="status"></div>
     <script type="text/javascript">
         // MSAL configuration - update clientId and authority as needed
+        const clientId = "33b17c75-d913-41da-8560-cc3014322e50";
+        const host = "aidu.ai";
+        const apiScope = `api://${host}/${clientId}/access_as_user`;
         const msalConfig = {
             auth: {
-                clientId: "33b17c75-d913-41da-8560-cc3014322e50", // TODO: Replace with your Azure AD app clientId
+                clientId: clientId,
                 authority: "https://login.microsoftonline.com/common",
-                redirectUri: window.location.href
+                redirectUri: `https://${host}/fallbackauthdialog.html` // Must match Azure AD registration
             }
         };
         const msalInstance = new msal.PublicClientApplication(msalConfig);
         const loginRequest = {
-            scopes: ["openid", "profile", "email", "User.Read"] // Adjust scopes as needed
+            scopes: [apiScope],
+            extraScopesToConsent: ["user.read"]
         };
         const statusDiv = document.getElementById('status');
         const signinBtn = document.getElementById('signin-btn');
@@ -54,6 +58,7 @@
         function showStatus(msg, isError) {
             statusDiv.textContent = msg;
             statusDiv.style.color = isError ? '#d32f2f' : '#388e3c';
+            if (window.console) console.log(msg);
         }
 
         function sendResultToParent(result) {
@@ -71,6 +76,7 @@
                 if (loginResponse && loginResponse.accessToken) {
                     showStatus('Sign-in successful!', false);
                     sendResultToParent({
+                        status: "success",
                         accessToken: loginResponse.accessToken,
                         idToken: loginResponse.idToken,
                         account: loginResponse.account
@@ -78,22 +84,35 @@
                 } else {
                     showStatus('No access token received.', true);
                     sendResultToParent({
+                        status: "failure",
                         error: 'No access token received.'
                     });
                 }
             } catch (err) {
                 showStatus('Sign-in failed: ' + (err.errorMessage || err.message), true);
                 sendResultToParent({
+                    status: "failure",
                     error: err.errorMessage || err.message
                 });
             }
         }
 
         // Office.js initialize
-        Office.onReady(function () {
-            signinBtn.onclick = signIn;
-            signIn();
+        Office.onReady(function (info) {
+            if (info && info.host) {
+                signinBtn.onclick = signIn;
+                // Optionally, auto-trigger sign-in:
+                // signIn();
+            } else {
+                showStatus('Office.js not ready.', true);
+            }
         });
+        // Extra: catch Office.js load errors
+        setTimeout(function () {
+            if (!window.Office || !Office.context) {
+                showStatus('Office.js failed to load.', true);
+            }
+        }, 5000);
     </script>
 </body>
 
