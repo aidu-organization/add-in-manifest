@@ -1,5 +1,5 @@
 <!-- Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See full license in root of repo. -->
-<!-- This file shows how to create an empty HTML file to load an AAD login script. -->
+<!-- This file provides a fallback authentication dialog for Office Add-ins when SSO is unavailable. -->
 
 <!DOCTYPE html>
 <html>
@@ -7,15 +7,94 @@
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-
+    <title>Sign in to continue</title>
     <!-- Office JavaScript API -->
     <script type="text/javascript" src="https://ajax.microsoft.com/ajax/4.0/MicrosoftAjax.js"></script>
     <script type="text/javascript" src="https://alcdn.msauth.net/browser/2.26.0/js/msal-browser.min.js"></script>
-    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.debug.js"></script>
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+        }
 
+        #status {
+            margin-top: 1em;
+            color: #d32f2f;
+        }
+
+        #signin-btn {
+            padding: 0.5em 1.5em;
+            font-size: 1em;
+        }
+    </style>
 </head>
 
 <body>
+    <h2>Sign in required</h2>
+    <p>To continue, please sign in with your Microsoft account.</p>
+    <button id="signin-btn">Sign in</button>
+    <div id="status"></div>
+    <script type="text/javascript">
+        // MSAL configuration - update clientId and authority as needed
+        const msalConfig = {
+            auth: {
+                clientId: "33b17c75-d913-41da-8560-cc3014322e50", // TODO: Replace with your Azure AD app clientId
+                authority: "https://login.microsoftonline.com/common",
+                redirectUri: window.location.href
+            }
+        };
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+        const loginRequest = {
+            scopes: ["openid", "profile", "email", "User.Read"] // Adjust scopes as needed
+        };
+        const statusDiv = document.getElementById('status');
+        const signinBtn = document.getElementById('signin-btn');
 
+        function showStatus(msg, isError) {
+            statusDiv.textContent = msg;
+            statusDiv.style.color = isError ? '#d32f2f' : '#388e3c';
+        }
+
+        function sendResultToParent(result) {
+            if (window.Office && Office.context && Office.context.ui && Office.context.ui.messageParent) {
+                Office.context.ui.messageParent(JSON.stringify(result));
+            } else {
+                showStatus('Unable to communicate with parent window.', true);
+            }
+        }
+
+        async function signIn() {
+            showStatus('Signing in...', false);
+            try {
+                const loginResponse = await msalInstance.loginPopup(loginRequest);
+                if (loginResponse && loginResponse.accessToken) {
+                    showStatus('Sign-in successful!', false);
+                    sendResultToParent({
+                        accessToken: loginResponse.accessToken,
+                        idToken: loginResponse.idToken,
+                        account: loginResponse.account
+                    });
+                } else {
+                    showStatus('No access token received.', true);
+                    sendResultToParent({
+                        error: 'No access token received.'
+                    });
+                }
+            } catch (err) {
+                showStatus('Sign-in failed: ' + (err.errorMessage || err.message), true);
+                sendResultToParent({
+                    error: err.errorMessage || err.message
+                });
+            }
+        }
+
+        // Office.js initialize
+        Office.onReady(function () {
+            signinBtn.onclick = signIn;
+            signIn();
+        });
+    </script>
 </body>
+
 </html>
